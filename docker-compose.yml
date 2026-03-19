@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: memora-ai-app
+    env_file: .env
+    environment:
+      REDIS_URL: "redis://redis:6379"
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./memora.db:/app/memora.db
+      - ./logs:/app/logs
+      - ./credentials.json:/app/credentials.json:ro
+      - ./temp_files:/app/temp_files
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - memora-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: memora-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - memora-network
+
+volumes:
+  redis_data:
+
+networks:
+  memora-network:
+    driver: bridge

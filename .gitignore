@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.db
+chroma_db/
+logs/
+temp_files/
+credentials.json
+.vscode/
+.idea/
+venv/
