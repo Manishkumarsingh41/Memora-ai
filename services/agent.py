@@ -1,12 +1,12 @@
-from anthropic import Anthropic
+import json
+from typing import Any, Dict, List
+
 from config import get_settings
 from logging_config import get_logger
-import json
-from typing import Dict, Optional, List
 
 settings = get_settings()
 logger = get_logger("agent")
-client = Anthropic(api_key=settings.anthropic_api_key)
+_client: Any = None
 
 INTENT_PROMPT = """You are Memora AI. Respond with ONLY valid JSON:
 {"intent": "list_files|retrieve_file|rag_query|summarize_file|chitchat", 
@@ -15,8 +15,18 @@ INTENT_PROMPT = """You are Memora AI. Respond with ONLY valid JSON:
  "file_number": null, 
  "rag_query": null}"""
 
+
+def _get_client() -> Any:
+    global _client
+    if _client is None:
+        import anthropic
+
+        _client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    return _client
+
 def detect_intent_and_respond(user_id: str, user_message: str, memory_context: str = "") -> Dict:
     try:
+        client = _get_client()
         messages = [{"role": "user", "content": f"{memory_context}\n\nMessage: {user_message}"}]
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
@@ -48,6 +58,7 @@ def detect_intent_and_respond(user_id: str, user_message: str, memory_context: s
 
 def generate_rag_answer(user_id: str, question: str, chunks: List[Dict]) -> str:
     try:
+        client = _get_client()
         context = "\n\n".join([f"[{c['file_name']}, page {c['page']}]: {c['text'][:200]}" for c in chunks])
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
@@ -62,6 +73,7 @@ def generate_rag_answer(user_id: str, question: str, chunks: List[Dict]) -> str:
 
 def generate_summary(file_text: str, file_name: str) -> str:
     try:
+        client = _get_client()
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=500,

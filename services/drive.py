@@ -1,6 +1,3 @@
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from config import get_settings
 from logging_config import get_logger
 import io
@@ -14,6 +11,9 @@ FOLDER_MAP = {"pdf": "documents", "image": "images", "video": "videos"}
 
 def _get_service():
     try:
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+
         creds = service_account.Credentials.from_service_account_file(
             settings.google_credentials_path, scopes=SCOPES
         )
@@ -52,6 +52,8 @@ def _get_or_create_user_folder(service, user_id: str) -> str:
 
 def upload_file(user_id: str, local_path: str, file_name: str, file_type: str) -> str:
     try:
+        from googleapiclient.http import MediaFileUpload
+
         service = _get_service()
         user_folder_id = _get_or_create_user_folder(service, user_id)
         subfolder_name = FOLDER_MAP.get(file_type, "documents")
@@ -69,6 +71,8 @@ def upload_file(user_id: str, local_path: str, file_name: str, file_type: str) -
 
 def download_file(drive_file_id: str, dest_path: str) -> str:
     try:
+        from googleapiclient.http import MediaIoBaseDownload
+
         service = _get_service()
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         
