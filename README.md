@@ -18,6 +18,8 @@ Chat with your files on WhatsApp using AI
 ![Tests](https://img.shields.io/badge/Tests-28%20passing-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+## 🚧 Work in Progress / Under Active Development (80% Complete)
+
 ## 2. WHAT IT DOES
 
 - Send PDF, image, or video on WhatsApp
